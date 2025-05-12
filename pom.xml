@@ -11,13 +11,19 @@
 	<artifactId>demo</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>task-management-system</name>
-	<description>Task Management System</description>
-	<url/>
+	<description>Spring Boot приложение для управления задачами, пользователями и уведомлениями. Поддерживает регистрацию, аутентификацию, CRUD для задач и систему уведомлений. Данные хранятся в памяти (in-memory).</description>
+	<url>https://github.com/SuslikXXX/java_course_work</url>
 	<licenses>
-		<license/>
+		<license>
+			<name>MIT License</name>
+			<url>https://opensource.org/licenses/MIT</url>
+		</license>
 	</licenses>
 	<developers>
-		<developer/>
+		<developer>
+			<name>Vladislav Eiknt</name>
+			<email>your-email@example.com</email>
+		</developer>
 	</developers>
 	<scm>
 		<connection/>
