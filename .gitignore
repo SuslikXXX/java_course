@@ -37,9 +37,10 @@ logs/
 *.log
 
 /target
+/.env
 /.idea
 *.iml
 *.log
 *.class
 /.DS_Store
-/.env
+
