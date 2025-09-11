@@ -4,15 +4,17 @@ import com.example.demo.model.Notification;
 import com.example.demo.model.User;
 import com.example.demo.service.NotificationService;
 import com.example.demo.service.UserService;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 @RestController
 @RequestMapping("/api/notifications")
 public class NotificationController {
+
     private final NotificationService notificationService;
     private final UserService userService;
 
@@ -21,44 +23,40 @@ public class NotificationController {
         this.userService = userService;
     }
 
-    @GetMapping
-    public ResponseEntity<List<Notification>> getAllNotifications() {
-        List<Notification> notifications = notificationService.getAllNotifications();
-        return ResponseEntity.ok(notifications);
-    }
-
-    @GetMapping("/{notificationId}")
-    public ResponseEntity<Notification> getNotificationById(@PathVariable Long notificationId) {
-        Notification notification = notificationService.getNotificationById(notificationId);
-        if (notification == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(notification);
-    }
-
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<List<Notification>> getAllNotificationsByUser(@PathVariable Long userId) {
+    @GetMapping("/user/{userId}/all")
+    public ResponseEntity<Map<String, Object>> getUserNotifications(@PathVariable Long userId) {
         User user = userService.getUserById(userId);
         if (user == null) {
-            return ResponseEntity.notFound().build();
+            Map<String, Object> response = new HashMap<>();
+            response.put("error", "User not found");
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
-        List<Notification> notifications = notificationService.getAllNotifications(user);
-        return ResponseEntity.ok(notifications);
+        Map<String, Object> response = new HashMap<>();
+        response.put("notifications", notificationService.getAllNotifications(user));
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping("/user/{userId}/pending")
-    public ResponseEntity<List<Notification>> getPendingNotifications(@PathVariable Long userId) {
+    public ResponseEntity<List<Notification>> getUnreadUserNotifications(@PathVariable Long userId) {
         User user = userService.getUserById(userId);
         if (user == null) {
             return ResponseEntity.notFound().build();
         }
-        List<Notification> notifications = notificationService.getPendingNotifications(user);
-        return ResponseEntity.ok(notifications);
+        return ResponseEntity.ok(notificationService.getPendingNotifications(user));
     }
 
-    @PostMapping
-    public ResponseEntity<Notification> createNotification(@RequestBody Notification notification) {
-        Notification createdNotification = notificationService.createNotification(notification);
-        return new ResponseEntity<>(createdNotification, HttpStatus.CREATED);
+    @PostMapping("/create")
+    public ResponseEntity<Map<String, Object>> addNotification(@RequestBody Notification notification) {
+        try {
+            Notification saved = notificationService.createNotification(notification);
+            Map<String, Object> response = new HashMap<>();
+            response.put("notification", saved);
+            response.put("message", "Notification created successfully");
+            return new ResponseEntity<>(response, HttpStatus.CREATED);
+        } catch (IllegalArgumentException e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("error", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
     }
-} 
+}

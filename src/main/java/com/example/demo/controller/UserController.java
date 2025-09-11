@@ -1,13 +1,14 @@
 package com.example.demo.controller;
 
-import com.example.demo.model.LoginRequest;
 import com.example.demo.model.User;
 import com.example.demo.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/users")
@@ -34,21 +35,32 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<User> registerUser(@RequestBody User user) {
+    public ResponseEntity<Map<String, Object>> registerUser(@RequestBody User user) {
         try {
             User registeredUser = userService.registerUser(user);
-            return new ResponseEntity<>(registeredUser, HttpStatus.CREATED);
+            Map<String, Object> response = new HashMap<>();
+            response.put("user", registeredUser);
+            response.put("message", "Registration successful");
+            return new ResponseEntity<>(response, HttpStatus.CREATED);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
+            Map<String, Object> response = new HashMap<>();
+            response.put("error", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
     }
 
     @PostMapping("/login")
-    public ResponseEntity<User> login(@RequestBody LoginRequest loginRequest) {
-        User user = userService.login(loginRequest.getUsername(), loginRequest.getPassword());
+    public ResponseEntity<Map<String, Object>> login(@RequestParam String username, @RequestParam String password) {
+        User user = userService.login(username, password);
+        Map<String, Object> response = new HashMap<>();
+
         if (user != null) {
-            return ResponseEntity.ok(user);
+            response.put("user", user);
+            response.put("message", "Login successful");
+            return new ResponseEntity<>(response, HttpStatus.OK);
         }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+
+        response.put("error", "Invalid credentials");
+        return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
     }
-} 
+}
