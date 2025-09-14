@@ -6,26 +6,37 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "tasks")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class Task {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private String title;
 
     private String description;
 
+    @Column(name = "creation_date")
     private LocalDateTime creationDate;
 
+    @Column(name = "target_date")
     private LocalDateTime targetDate;
 
     private boolean completed;
 
     private boolean deleted;
 
+    @ManyToOne
+    @JoinColumn(name = "user_id")
     private User user;
 
     public Task(String title, String description, LocalDateTime targetDate, User user) {

@@ -1,49 +1,46 @@
 package com.example.demo.service.impl;
 
 import com.example.demo.model.User;
+import com.example.demo.repository.UserRepository;
 import com.example.demo.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.Optional;
 
 @Service
 public class InMemoryUserService implements UserService {
-    private final Map<Long, User> users = new ConcurrentHashMap<>();
-    private final Map<String, User> usersByUsername = new ConcurrentHashMap<>();
-    private final AtomicLong idCounter = new AtomicLong(1);
+    
+    @Autowired
+    private UserRepository userRepository;
 
     @Override
     public List<User> getAllUsers() {
-        return new ArrayList<>(users.values());
+        return userRepository.findAll();
     }
 
     @Override
     public User registerUser(User user) {
-        if (usersByUsername.containsKey(user.getUsername())) {
+        Optional<User> existingUser = userRepository.findByUsername(user.getUsername());
+        if (existingUser.isPresent()) {
             throw new IllegalArgumentException("Username already exists");
         }
 
-        user.setId(idCounter.getAndIncrement());
-        users.put(user.getId(), user);
-        usersByUsername.put(user.getUsername(), user);
-        return user;
+        return userRepository.save(user);
     }
 
     @Override
     public User login(String username, String password) {
-        User user = usersByUsername.get(username);
-        if (user != null && user.getPassword().equals(password)) {
-            return user;
+        Optional<User> user = userRepository.findByUsername(username);
+        if (user.isPresent() && user.get().getPassword().equals(password)) {
+            return user.get();
         }
         return null;
     }
 
     @Override
     public User getUserById(Long userId) {
-        return users.get(userId);
+        return userRepository.findById(userId).orElse(null);
     }
 } 
