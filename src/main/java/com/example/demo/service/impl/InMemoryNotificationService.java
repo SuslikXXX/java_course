@@ -2,51 +2,41 @@ package com.example.demo.service.impl;
 
 import com.example.demo.model.Notification;
 import com.example.demo.model.User;
+import com.example.demo.repository.NotificationRepository;
 import com.example.demo.service.NotificationService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 @Service
 public class InMemoryNotificationService implements NotificationService {
-    private final Map<Long, Notification> notifications = new ConcurrentHashMap<>();
-    private long nextId = 1;
+    
+    @Autowired
+    private NotificationRepository notificationRepository;
 
     @Override
     public List<Notification> getAllNotifications() {
-        return new ArrayList<>(notifications.values());
+        return notificationRepository.findAll();
     }
 
     @Override
     public List<Notification> getAllNotifications(User user) {
-        return notifications.values().stream()
-                .filter(notification -> notification.getUser() != null && 
-                        notification.getUser().getId().equals(user.getId()))
-                .collect(Collectors.toList());
+        return notificationRepository.findByUser(user);
     }
 
     @Override
     public List<Notification> getPendingNotifications(User user) {
-        return notifications.values().stream()
-                .filter(notification -> notification.getUser() != null && 
-                        notification.getUser().getId().equals(user.getId()) && 
-                        !notification.isRead())
-                .collect(Collectors.toList());
+        return notificationRepository.findByUserAndReadFalse(user);
     }
 
     @Override
     public Notification createNotification(Notification notification) {
-        notification.setId(nextId++);
-        notifications.put(notification.getId(), notification);
-        return notification;
+        return notificationRepository.save(notification);
     }
 
     @Override
     public Notification getNotificationById(Long notificationId) {
-        return notifications.get(notificationId);
+        return notificationRepository.findById(notificationId).orElse(null);
     }
 } 
