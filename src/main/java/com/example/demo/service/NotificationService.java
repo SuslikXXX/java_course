@@ -15,5 +15,5 @@ public interface NotificationService {
     Notification createNotification(Notification notification);
 
     Notification getNotificationById(Long notificationId);
-    
-} 
+
+}
