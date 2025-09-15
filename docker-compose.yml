@@ -1,0 +1,11 @@
+services:
+  java-app:
+    build: .
+    image: java_course-java-app:latest   # фиксируем имя образа
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_PROFILES_ACTIVE=default
+      - SPRING_DATASOURCE_URL=jdbc:h2:mem:testdb
+      - SPRING_DATASOURCE_USERNAME=sa
+      - SPRING_DATASOURCE_PASSWORD=password
