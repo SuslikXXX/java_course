@@ -1,11 +1,39 @@
 services:
+  postgres:
+    image: postgres:15
+    container_name: taskmanagement_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: taskmanagement
+      POSTGRES_USER: taskuser
+      POSTGRES_PASSWORD: taskpass
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U taskuser -d taskmanagement"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
   java-app:
     build: .
-    image: java_course-java-app:latest   # фиксируем имя образа
+    image: java_course-java-app:latest
+    container_name: taskmanagement_app
+    restart: unless-stopped
     ports:
       - "8081:8081"
     environment:
       - SPRING_PROFILES_ACTIVE=default
-      - SPRING_DATASOURCE_URL=jdbc:h2:mem:testdb
-      - SPRING_DATASOURCE_USERNAME=sa
-      - SPRING_DATASOURCE_PASSWORD=password
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/taskmanagement
+      - SPRING_DATASOURCE_USERNAME=taskuser
+      - SPRING_DATASOURCE_PASSWORD=taskpass
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=validate
+      - SPRING_FLYWAY_ENABLED=true
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  postgres_data:

@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import org.hibernate.annotations.CreationTimestamp;
 
 import jakarta.persistence.*;
 
@@ -26,6 +27,7 @@ public class Task {
     private String description;
 
     @Column(name = "creation_date")
+    @CreationTimestamp
     private LocalDateTime creationDate;
 
     @Column(name = "target_date")
@@ -42,7 +44,6 @@ public class Task {
     public Task(String title, String description, LocalDateTime targetDate, User user) {
         this.title = title;
         this.description = description;
-        this.creationDate = LocalDateTime.now();
         this.targetDate = targetDate;
         this.completed = false;
         this.deleted = false;
