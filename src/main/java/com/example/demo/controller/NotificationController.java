@@ -44,19 +44,4 @@ public class NotificationController {
         }
         return ResponseEntity.ok(notificationService.getPendingNotifications(user));
     }
-
-    @PostMapping("/create")
-    public ResponseEntity<Map<String, Object>> addNotification(@RequestBody Notification notification) {
-        try {
-            Notification saved = notificationService.createNotification(notification);
-            Map<String, Object> response = new HashMap<>();
-            response.put("notification", saved);
-            response.put("message", "Notification created successfully");
-            return new ResponseEntity<>(response, HttpStatus.CREATED);
-        } catch (IllegalArgumentException e) {
-            Map<String, Object> response = new HashMap<>();
-            response.put("error", e.getMessage());
-            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-        }
-    }
 }

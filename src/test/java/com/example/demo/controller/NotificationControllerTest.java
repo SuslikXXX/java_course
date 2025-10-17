@@ -15,10 +15,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(NotificationController.class)
@@ -32,32 +30,6 @@ class NotificationControllerTest {
 
     @MockBean
     private UserService userService;
-
-    @Test
-    @DisplayName("POST /api/notifications/create creates notification")
-    void createNotification_success() throws Exception {
-        User usr = User.builder().id(1L).username("u").email("u@e.com").password("p").build();
-        Notification saved = Notification.builder()
-                .id(10L)
-                .message("Hi")
-                .user(usr)
-                .read(false)
-                .creationDate(LocalDateTime.now())
-                .build();
-        when(notificationService.createNotification(any(Notification.class))).thenReturn(saved);
-
-        String body = "{" +
-                "\"message\":\"Hi\"," +
-                "\"user\": { \"id\": 1 }" +
-                "}";
-
-        mockMvc.perform(post("/api/notifications/create")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(body))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.notification.id").value(10))
-                .andExpect(jsonPath("$.notification.message").value("Hi"));
-    }
 
     @Test
     @DisplayName("GET /api/notifications/user/{id}/all user not found -> 404")
