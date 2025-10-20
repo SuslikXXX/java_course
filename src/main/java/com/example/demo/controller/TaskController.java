@@ -58,6 +58,13 @@ public class TaskController {
 
     @PostMapping
     public ResponseEntity<Task> createTask(@RequestBody Task task) {
+        if (task.getUser() != null && task.getUser().getId() != null) {
+            User user = userService.getUserById(task.getUser().getId());
+            if (user == null) {
+                return ResponseEntity.badRequest().build();
+            }
+            task.setUser(user);
+        }
         Task createdTask = taskService.createTask(task);
         return new ResponseEntity<>(createdTask, HttpStatus.CREATED);
     }

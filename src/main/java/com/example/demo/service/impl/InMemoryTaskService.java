@@ -1,22 +1,29 @@
 package com.example.demo.service.impl;
 
+import com.example.demo.dto.TaskEventDTO;
 import com.example.demo.model.Task;
 import com.example.demo.model.User;
 import com.example.demo.repository.TaskRepository;
 import com.example.demo.service.TaskService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@Slf4j
 public class InMemoryTaskService implements TaskService {
     
     @Autowired
     private TaskRepository taskRepository;
+    
+    @Autowired
+    private KafkaTemplate<String, TaskEventDTO> kafkaTemplate;
 
     @Override
     @Cacheable(value = "allTasks", unless = "#result == null || #result.isEmpty()")
@@ -45,7 +52,25 @@ public class InMemoryTaskService implements TaskService {
         @CacheEvict(value = "pendingTasks", key = "#task.user.id")
     })
     public Task createTask(Task task) {
-        return taskRepository.save(task);
+        Task savedTask = taskRepository.save(task);
+        
+        try {
+            TaskEventDTO taskEvent = TaskEventDTO.builder()
+                    .taskId(savedTask.getId())
+                    .title(savedTask.getTitle())
+                    .description(savedTask.getDescription())
+                    .userId(savedTask.getUser().getId())
+                    .username(savedTask.getUser().getUsername())
+                    .createdAt(savedTask.getCreationDate())
+                    .build();
+            
+            kafkaTemplate.send("task-events", taskEvent);
+            log.info("Sent task event to Kafka: {}", taskEvent);
+        } catch (Exception e) {
+            log.error("Failed to send task event to Kafka", e);
+        }
+        
+        return savedTask;
     }
 
     @Override
