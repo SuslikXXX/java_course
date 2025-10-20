@@ -23,7 +23,6 @@ class UserServiceMockitoTest {
     @Mock
     private UserRepository userRepository;
 
-    // Мы тестируем реализацию InMemoryUserService как обычный сервис, но замещаем репозиторий моками
     @InjectMocks
     private InMemoryUserService userService;
 
