@@ -40,6 +40,8 @@ public class Task implements Serializable {
 
     private boolean deleted;
 
+    private boolean overdue;
+
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
@@ -50,6 +52,7 @@ public class Task implements Serializable {
         this.targetDate = targetDate;
         this.completed = false;
         this.deleted = false;
+        this.overdue = false;
         this.user = user;
     }
 

@@ -62,6 +62,7 @@ public class InMemoryTaskService implements TaskService {
                     .userId(savedTask.getUser().getId())
                     .username(savedTask.getUser().getUsername())
                     .createdAt(savedTask.getCreationDate())
+                    .eventType("TASK_CREATED")
                     .build();
             
             kafkaTemplate.send("task-events", taskEvent);
