@@ -12,11 +12,11 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class TaskEventDTO {
+    
     private Long taskId;
     private String title;
     private String description;
     private Long userId;
     private String username;
     private LocalDateTime createdAt;
-    private String eventType;
 }
